@@ -21,11 +21,31 @@ const checkArticleAccess = (req, res, next) => {
 // Применение middleware для всех маршрутов статей
 articlesRouter.use(checkArticleAccess)
 
-articlesRouter.route('/').get(getArticlesHandler).post(postArticlesHandler)
+// Маршрут для отображения списка статей с использованием EJS
+articlesRouter.get('/', (req, res) => {
+  const articles = [
+    { id: 1, title: 'Article 1', content: 'Content of article 1' },
+    { id: 2, title: 'Article 2', content: 'Content of article 2' }
+  ]
+  // Явно указываем использование EJS
+  res.render('ejs/articles.ejs', { articles })
+})
+
+// Маршрут для отображения деталей статьи с использованием EJS
+articlesRouter.get('/:articleId', (req, res) => {
+  const article = { 
+    id: req.params.articleId, 
+    title: `Article ${req.params.articleId}`, 
+    content: `Content of article ${req.params.articleId}` 
+  }
+  // Явно указываем использование EJS
+  res.render('ejs/articleDetails.ejs', { article })
+})
+
+articlesRouter.route('/').post(postArticlesHandler)
 
 articlesRouter
   .route('/:articleId')
-  .get(getArticleByIdHandler)
   .put(putArticleByIdHandler)
   .delete(deleteArticleByIdHandler)
 
