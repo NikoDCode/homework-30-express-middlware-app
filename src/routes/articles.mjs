@@ -13,7 +13,11 @@ const articlesRouter = Router()
 const checkArticleAccess = (req, res, next) => {
   const userRole = req.headers['x-user-role']
   if (userRole !== 'admin') {
-    return res.status(403).send('Access denied. Insufficient permissions.')
+    return res.status(403).json({
+      status: 'error',
+      code: 403,
+      message: 'Access denied. Insufficient permissions.'
+    })
   }
   next()
 }
@@ -21,27 +25,11 @@ const checkArticleAccess = (req, res, next) => {
 // Применение middleware для всех маршрутов статей
 articlesRouter.use(checkArticleAccess)
 
-// Маршрут для отображения списка статей с использованием EJS
-articlesRouter.get('/', (req, res) => {
-  const articles = [
-    { id: 1, title: 'Article 1', content: 'Content of article 1' },
-    { id: 2, title: 'Article 2', content: 'Content of article 2' }
-  ]
-  // Явно указываем использование EJS
-  res.render('ejs/articles.ejs', { articles })
-})
+// Используем контроллеры для маршрутов
+articlesRouter.get('/', getArticlesHandler)
+articlesRouter.get('/:articleId', getArticleByIdHandler)
 
-// Маршрут для отображения деталей статьи с использованием EJS
-articlesRouter.get('/:articleId', (req, res) => {
-  const article = { 
-    id: req.params.articleId, 
-    title: `Article ${req.params.articleId}`, 
-    content: `Content of article ${req.params.articleId}` 
-  }
-  // Явно указываем использование EJS
-  res.render('ejs/articleDetails.ejs', { article })
-})
-
+// CRUD операции
 articlesRouter.route('/').post(postArticlesHandler)
 
 articlesRouter

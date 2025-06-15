@@ -1,53 +1,9 @@
-doctype html
-html
-  head
-    title Users List
-    style.
-      body {
-        font-family: Arial, sans-serif;
-        max-width: 800px;
-        margin: 0 auto;
-        padding: 20px;
-        background-color: #f5f5f5;
-      }
-      h1 {
-        color: #333;
-        text-align: center;
-        margin-bottom: 30px;
-      }
-      ul {
-        list-style-type: none;
-        padding: 0;
-      }
-      li {
-        background-color: white;
-        margin: 10px 0;
-        padding: 15px;
-        border-radius: 5px;
-        box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-        transition: transform 0.2s;
-      }
-      li:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 4px 10px rgba(0,0,0,0.15);
-      }
-      a {
-        text-decoration: none;
-        color: #007bff;
-        font-weight: bold;
-      }
-      a:hover {
-        color: #0056b3;
-      }
-      .user-info {
-        margin-top: 5px;
-        color: #666;
-        font-size: 0.9em;
-      }
-  body
-    h1 Users List
-    ul
-      each user in users
-        li
-          a(href=`/users/${user.id}`)= user.name
-          .user-info Email: #{user.email}
+extends layout.pug
+
+block content
+  h1 Users List
+  ul
+    each user in users
+      li
+        a(href=`/users/${user.id}`)= user.name
+        .user-info Email: #{user.email}

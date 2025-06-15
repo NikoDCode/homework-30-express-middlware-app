@@ -1,104 +1,18 @@
-<!DOCTYPE html>
-<html>
-
-<head>
-  <title>Articles List</title>
-  <style>
-    body {
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      max-width: 800px;
-      margin: 0 auto;
-      padding: 20px;
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      min-height: 100vh;
-      color: #333;
-    }
-
-    .container {
-      background-color: white;
-      border-radius: 15px;
-      padding: 40px;
-      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
-    }
-
-    h1 {
-      color: #333;
-      text-align: center;
-      margin-bottom: 40px;
-      font-size: 2.5em;
-      text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
-    }
-
-    ul {
-      list-style-type: none;
-      padding: 0;
-    }
-
-    li {
-      background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
-      margin: 15px 0;
-      border-radius: 10px;
-      overflow: hidden;
-      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
-      transition: all 0.3s ease;
-    }
-
-    li:hover {
-      transform: translateY(-5px) scale(1.02);
-      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
-    }
-
-    a {
-      display: block;
-      padding: 20px;
-      text-decoration: none;
-      color: white;
-      font-weight: bold;
-      font-size: 1.2em;
-      text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
-      transition: all 0.3s ease;
-    }
-
-    a:hover {
-      background: rgba(255, 255, 255, 0.1);
-    }
-
-    .article-meta {
-      font-size: 0.9em;
-      opacity: 0.9;
-      margin-top: 5px;
-    }
-
-    .admin-notice {
-      background-color: #e3f2fd;
-      border: 1px solid #2196f3;
-      border-radius: 5px;
-      padding: 10px;
-      margin-bottom: 20px;
-      text-align: center;
-      color: #1976d2;
-    }
-  </style>
-</head>
-
-<body>
-  <div class="container">
-    <div class="admin-notice">
-      🔒 Admin Access Required - Articles Section
-    </div>
-    <h1>📚 Articles Collection</h1>
-    <ul>
-      <% articles.forEach(article=> { %>
-        <li>
-          <a href="/articles/<%= article.id %>">
-            <%= article.title %>
-              <div class="article-meta">ID: <%= article.id %>
-              </div>
-          </a>
-        </li>
-        <% }) %>
-    </ul>
+<%- include('layout.ejs', { title: 'Articles List', theme: theme }) %>
+<div class="container">
+  <div class="admin-notice">
+    🔒 Admin Access Required - Articles Section
   </div>
-</body>
-
-</html>
+  <h1>📚 Articles Collection</h1>
+  <ul>
+    <% articles.forEach(article=> { %>
+      <li>
+        <a href="/articles/<%= article.id %>">
+          <%= article.title %>
+            <div class="article-meta">ID: <%= article.id %>
+            </div>
+        </a>
+      </li>
+      <% }) %>
+  </ul>
+</div>

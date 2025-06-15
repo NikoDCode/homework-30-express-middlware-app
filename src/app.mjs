@@ -3,12 +3,15 @@ import { errors } from 'celebrate'
 import ejs from 'ejs'
 import path from 'path'
 import { fileURLToPath } from 'url'
+import cookieParser from 'cookie-parser'
+import favicon from 'serve-favicon'
 import router from './routes/index.mjs'
 
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
 
-const PORT = 3000
+// Используем переменную окружения для порта
+const PORT = process.env.PORT || 3000
 const app = express()
 
 // Настройка PUG для маршрутов пользователей
@@ -18,6 +21,12 @@ app.set('views', path.join(__dirname, 'views')) // Общая папка views
 // Настройка EJS
 app.engine('ejs', ejs.renderFile)
 
+// Middleware для favicon
+app.use(favicon(path.join(__dirname, 'public', 'favicon.ico')))
+
+// Middleware для работы с cookies
+app.use(cookieParser())
+
 // Middleware для логирования запросов
 app.use((req, res, next) => {
   console.log(`${new Date().toISOString()} - ${req.method} request to ${req.url}`)
@@ -26,6 +35,11 @@ app.use((req, res, next) => {
 
 // Middleware для обработки JSON
 app.use(express.json())
+// Middleware для обработки URL-encoded данных (для форм)
+app.use(express.urlencoded({ extended: true }))
+
+// Middleware для статических файлов
+app.use(express.static(path.join(__dirname, 'public')))
 
 // Подключение маршрутов
 app.use(router)

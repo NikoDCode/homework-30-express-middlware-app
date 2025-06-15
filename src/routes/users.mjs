@@ -10,27 +10,13 @@ import { validateUserBody, validateParamsUserId } from '../validators/userValida
 
 const usersRouter = Router()
 
-// Маршрут для отображения списка пользователей с использованием PUG
-usersRouter.get('/', (req, res) => {
-  const users = [
-    { id: 1, name: 'John Doe', email: 'john@example.com' },
-    { id: 2, name: 'Jane Smith', email: 'jane@example.com' }
-  ]
-  // Явно указываем использование PUG
-  res.render('pug/users.pug', { users })
-})
+// Используем контроллер для отображения списка пользователей
+usersRouter.get('/', getUsersHandler)
 
-// Маршрут для отображения деталей пользователя с использованием PUG
-usersRouter.get('/:userId', validateParamsUserId, (req, res) => {
-  const user = { 
-    id: req.params.userId, 
-    name: 'John Doe', 
-    email: 'john@example.com' 
-  }
-  // Явно указываем использование PUG
-  res.render('pug/userDetails.pug', { user })
-})
+// Используем контроллер для отображения деталей пользователя
+usersRouter.get('/:userId', validateParamsUserId, getUserByIdHandler)
 
+// CRUD операции
 usersRouter
   .route('/')
   .post(validateUserBody, postUsersHandler)

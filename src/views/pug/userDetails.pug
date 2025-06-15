@@ -1,66 +1,15 @@
-doctype html
-html
-  head
-    title User Details
-    style.
-      body {
-        font-family: Arial, sans-serif;
-        max-width: 600px;
-        margin: 0 auto;
-        padding: 20px;
-        background-color: #f5f5f5;
-      }
-      .card {
-        background-color: white;
-        border-radius: 10px;
-        padding: 30px;
-        box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-      }
-      h1 {
-        color: #333;
-        text-align: center;
-        margin-bottom: 30px;
-        border-bottom: 2px solid #007bff;
-        padding-bottom: 10px;
-      }
-      .detail {
-        margin: 15px 0;
-        padding: 10px;
-        background-color: #f8f9fa;
-        border-left: 4px solid #007bff;
-        border-radius: 0 5px 5px 0;
-      }
-      .label {
-        font-weight: bold;
-        color: #495057;
-        display: inline-block;
-        width: 80px;
-      }
-      .value {
-        color: #333;
-      }
-      .back-link {
-        display: block;
-        text-align: center;
-        margin-top: 30px;
-        color: #007bff;
-        text-decoration: none;
-        font-weight: bold;
-      }
-      .back-link:hover {
-        color: #0056b3;
-        text-decoration: underline;
-      }
-  body
-    .card
-      h1 User Details
-      .detail
-        span.label ID:
-        span.value #{user.id}
-      .detail
-        span.label Name:
-        span.value #{user.name}
-      .detail
-        span.label Email:
-        span.value #{user.email}
-      a.back-link(href="/users") ← Back to Users List
+extends layout.pug
+
+block content
+  .card
+    h1 User Details
+    .detail
+      span.label ID:
+      span.value #{user.id}
+    .detail
+      span.label Name:
+      span.value #{user.name}
+    .detail
+      span.label Email:
+      span.value #{user.email}
+    a.back-link(href="/users") ← Back to Users List

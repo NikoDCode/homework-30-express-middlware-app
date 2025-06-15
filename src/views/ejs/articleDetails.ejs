@@ -1,131 +1,28 @@
-<!DOCTYPE html>
-<html>
-
-<head>
-  <title>Article Details</title>
-  <style>
-    body {
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      max-width: 800px;
-      margin: 0 auto;
-      padding: 20px;
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      min-height: 100vh;
-      color: #333;
-    }
-
-    .container {
-      background-color: white;
-      border-radius: 15px;
-      padding: 40px;
-      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
-    }
-
-    h1 {
-      color: #333;
-      text-align: center;
-      margin-bottom: 40px;
-      font-size: 2.5em;
-      text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
-      border-bottom: 3px solid #f5576c;
-      padding-bottom: 15px;
-    }
-
-    .article-card {
-      background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
-      border-radius: 15px;
-      padding: 30px;
-      color: white;
-      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
-    }
-
-    .detail-row {
-      margin: 20px 0;
-      padding: 15px;
-      background: rgba(255, 255, 255, 0.1);
-      border-radius: 10px;
-      backdrop-filter: blur(10px);
-    }
-
-    .label {
-      font-weight: bold;
-      font-size: 1.1em;
-      display: inline-block;
-      width: 100px;
-      text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
-    }
-
-    .value {
-      font-size: 1.1em;
-      line-height: 1.6;
-    }
-
-    .content-section {
-      margin-top: 30px;
-      padding: 20px;
-      background: rgba(255, 255, 255, 0.15);
-      border-radius: 10px;
-      border-left: 5px solid white;
-    }
-
-    .back-link {
-      display: inline-block;
-      margin-top: 30px;
-      padding: 12px 25px;
-      background: rgba(255, 255, 255, 0.2);
-      color: white;
-      text-decoration: none;
-      border-radius: 25px;
-      font-weight: bold;
-      transition: all 0.3s ease;
-      backdrop-filter: blur(10px);
-    }
-
-    .back-link:hover {
-      background: rgba(255, 255, 255, 0.3);
-      transform: translateY(-2px);
-    }
-
-    .admin-notice {
-      background-color: rgba(255, 255, 255, 0.9);
-      border-radius: 10px;
-      padding: 15px;
-      margin-bottom: 20px;
-      text-align: center;
-      color: #1976d2;
-      font-weight: bold;
-    }
-  </style>
-</head>
-
-<body>
-  <div class="container">
-    <div class="admin-notice">
-      🔒 Admin Access - Article Details
-    </div>
-    <h1>📖 Article Details</h1>
-    <div class="article-card">
-      <div class="detail-row">
-        <span class="label">ID:</span>
-        <span class="value">
-          <%= article.id %>
-        </span>
-      </div>
-      <div class="detail-row">
-        <span class="label">Title:</span>
-        <span class="value">
-          <%= article.title %>
-        </span>
-      </div>
-      <div class="content-section">
-        <div class="label">Content:</div>
-        <div class="value" style="margin-top: 10px;">
-          <%= article.content %>
-        </div>
-      </div>
-      <a href="/articles" class="back-link">← Back to Articles</a>
-    </div>
+<%- include('layout.ejs', { title: 'Article Details', theme: theme }) %>
+<div class="container">
+  <div class="admin-notice">
+    🔒 Admin Access - Article Details
   </div>
-</body>
-
-</html>
+  <h1>📖 Article Details</h1>
+  <div class="article-card">
+    <div class="detail-row">
+      <span class="label">ID:</span>
+      <span class="value">
+        <%= article.id %>
+      </span>
+    </div>
+    <div class="detail-row">
+      <span class="label">Title:</span>
+      <span class="value">
+        <%= article.title %>
+      </span>
+    </div>
+    <div class="content-section">
+      <div class="label">Content:</div>
+      <div class="value" style="margin-top: 10px;">
+        <%= article.content %>
+      </div>
+    </div>
+    <a href="/articles" class="back-link">← Back to Articles</a>
+  </div>
+</div>
