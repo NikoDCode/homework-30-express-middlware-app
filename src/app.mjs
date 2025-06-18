@@ -5,6 +5,9 @@ import path from 'path'
 import { fileURLToPath } from 'url'
 import cookieParser from 'cookie-parser'
 import favicon from 'serve-favicon'
+import session from 'express-session'
+import passport from './middleware/passport.mjs'
+import { themeMiddleware } from './middleware/theme.mjs'
 import router from './routes/index.mjs'
 
 const __filename = fileURLToPath(import.meta.url)
@@ -27,6 +30,25 @@ app.use(favicon(path.join(__dirname, 'public', 'favicon.ico')))
 // Middleware для работы с cookies
 app.use(cookieParser())
 
+// Middleware для темы
+app.use(themeMiddleware)
+
+// Настройка express-session
+app.use(session({
+  secret: process.env.SESSION_SECRET || 'your-session-secret',
+  resave: false,
+  saveUninitialized: false,
+  cookie: {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === 'production',
+    maxAge: 24 * 60 * 60 * 1000 // 1 день
+  }
+}))
+
+// Инициализация Passport
+app.use(passport.initialize())
+app.use(passport.session())
+
 // Middleware для логирования запросов
 app.use((req, res, next) => {
   console.log(`${new Date().toISOString()} - ${req.method} request to ${req.url}`)
@@ -40,6 +62,11 @@ app.use(express.urlencoded({ extended: true }))
 
 // Middleware для статических файлов
 app.use(express.static(path.join(__dirname, 'public')))
+
+// Корневой маршрут
+app.get('/', (req, res) => {
+  res.send('Добро пожаловать в Express Middleware App!')
+})
 
 // Подключение маршрутов
 app.use(router)

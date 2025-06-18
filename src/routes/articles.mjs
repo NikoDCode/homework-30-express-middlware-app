@@ -1,40 +1,40 @@
-import { Router } from 'express'
-import {
-  getArticlesHandler,
-  postArticlesHandler,
-  getArticleByIdHandler,
-  putArticleByIdHandler,
-  deleteArticleByIdHandler
-} from '../controllers/articles.mjs'
+import express from 'express'
+import { validateArticle, validateArticleUpdate, validateArticleDelete } from '../validators/articleValidation.mjs'
+import { checkArticleAccess } from '../middleware/checkArticleAccess.mjs'
 
-const articlesRouter = Router()
+const router = express.Router()
 
-// Middleware для проверки прав доступа
-const checkArticleAccess = (req, res, next) => {
-  const userRole = req.headers['x-user-role']
-  if (userRole !== 'admin') {
-    return res.status(403).json({
-      status: 'error',
-      code: 403,
-      message: 'Access denied. Insufficient permissions.'
-    })
-  }
-  next()
-}
+// GET /articles - список статей
+router.get('/', (req, res) => {
+  res.render('articles', { 
+    title: 'Список статей'
+  })
+})
 
-// Применение middleware для всех маршрутов статей
-articlesRouter.use(checkArticleAccess)
+// GET /articles/:id - детали статьи
+router.get('/:id', (req, res) => {
+  res.render('articleDetails', { 
+    title: 'Детали статьи', 
+    articleId: req.params.id
+  })
+})
 
-// Используем контроллеры для маршрутов
-articlesRouter.get('/', getArticlesHandler)
-articlesRouter.get('/:articleId', getArticleByIdHandler)
+// POST /articles - создание статьи (требует прав администратора)
+router.post('/', checkArticleAccess, validateArticle, (req, res) => {
+  // Здесь будет логика создания статьи
+  res.status(201).json({ message: 'Статья создана' })
+})
 
-// CRUD операции
-articlesRouter.route('/').post(postArticlesHandler)
+// PUT /articles/:articleId - обновление статьи (требует прав администратора)
+router.put('/:articleId', checkArticleAccess, validateArticleUpdate, (req, res) => {
+  // Здесь будет логика обновления статьи
+  res.json({ message: 'Статья обновлена' })
+})
 
-articlesRouter
-  .route('/:articleId')
-  .put(putArticleByIdHandler)
-  .delete(deleteArticleByIdHandler)
+// DELETE /articles/:articleId - удаление статьи (требует прав администратора)
+router.delete('/:articleId', checkArticleAccess, validateArticleDelete, (req, res) => {
+  // Здесь будет логика удаления статьи
+  res.json({ message: 'Статья удалена' })
+})
 
-export default articlesRouter
+export default router

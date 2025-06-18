@@ -1,20 +1,24 @@
-import { celebrate, Segments } from 'celebrate'
-import Joi from 'joi'
+import { celebrate, Joi } from 'celebrate'
 
-const userSchema = Joi.object({
-  name: Joi.string().required().min(3).max(30),
-  email: Joi.string().email().required(),
-  age: Joi.number().required().min(0).max(100)
-})
-
-const validateUserBody = celebrate({
-  [Segments.BODY]: userSchema
-})
-
-const validateParamsUserId = celebrate({
-  [Segments.PARAMS]: Joi.object({
-    userId: Joi.number().integer().positive().required()
+export const validateUser = celebrate({
+  body: Joi.object({
+    email: Joi.string().email().required(),
+    password: Joi.string().min(5).required()
   })
 })
 
-export { validateUserBody, validateParamsUserId }
+export const validateUserUpdate = celebrate({
+  params: Joi.object({
+    userId: Joi.string().required()
+  }),
+  body: Joi.object({
+    email: Joi.string().email(),
+    password: Joi.string().min(5)
+  }).min(1)
+})
+
+export const validateUserDelete = celebrate({
+  params: Joi.object({
+    userId: Joi.string().required()
+  })
+})

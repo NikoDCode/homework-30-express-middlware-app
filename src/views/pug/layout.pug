@@ -9,10 +9,22 @@ html(lang="ru")
       :root {
         --bg-color: #{theme === 'dark' ? '#333' : '#fff'};
         --text-color: #{theme === 'dark' ? '#fff' : '#333'};
+        --link-color: #{theme === 'dark' ? '#66b3ff' : '#0066cc'};
+        --border-color: #{theme === 'dark' ? '#666' : '#ddd'};
       }
       body {
         background-color: var(--bg-color);
         color: var(--text-color);
+        transition: background-color 0.3s, color 0.3s;
+      }
+      a {
+        color: var(--link-color);
+      }
+      .container {
+        border: 1px solid var(--border-color);
+        padding: 20px;
+        margin: 20px;
+        border-radius: 5px;
       }
   body
     block content 

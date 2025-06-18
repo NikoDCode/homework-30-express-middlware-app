@@ -1,8 +1,10 @@
-import { Router } from 'express'
-import { getRootHandler } from '../controllers/root.mjs'
+import express from 'express'
 
-const rootRouter = Router()
+const router = express.Router()
 
-rootRouter.get('/', getRootHandler)
+// GET / - приветственное сообщение
+router.get('/', (req, res) => {
+  res.send('Добро пожаловать в Express Middleware App!')
+})
 
-export default rootRouter
+export default router

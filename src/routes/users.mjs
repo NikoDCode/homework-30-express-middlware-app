@@ -1,29 +1,39 @@
-import { Router } from 'express'
-import {
-  getUsersHandler,
-  postUsersHandler,
-  getUserByIdHandler,
-  putUserByIdHandler,
-  deleteUserByIdHandler
-} from '../controllers/users.mjs'
-import { validateUserBody, validateParamsUserId } from '../validators/userValidation.mjs'
+import express from 'express'
+import { validateUser, validateUserUpdate, validateUserDelete } from '../validators/userValidation.mjs'
 
-const usersRouter = Router()
+const router = express.Router()
 
-// Используем контроллер для отображения списка пользователей
-usersRouter.get('/', getUsersHandler)
+// GET /users - список пользователей
+router.get('/', (req, res) => {
+  res.render('users', { 
+    title: 'Список пользователей'
+  })
+})
 
-// Используем контроллер для отображения деталей пользователя
-usersRouter.get('/:userId', validateParamsUserId, getUserByIdHandler)
+// GET /users/:id - детали пользователя
+router.get('/:id', (req, res) => {
+  res.render('userDetails', { 
+    title: 'Детали пользователя', 
+    userId: req.params.id
+  })
+})
 
-// CRUD операции
-usersRouter
-  .route('/')
-  .post(validateUserBody, postUsersHandler)
+// POST /users - создание пользователя
+router.post('/', validateUser, (req, res) => {
+  // Здесь будет логика создания пользователя
+  res.status(201).json({ message: 'Пользователь создан' })
+})
 
-usersRouter
-  .route('/:userId')
-  .put(validateParamsUserId, validateUserBody, putUserByIdHandler)
-  .delete(validateParamsUserId, deleteUserByIdHandler)
+// PUT /users/:userId - обновление пользователя
+router.put('/:userId', (req, res) => {
+  // Здесь будет логика обновления пользователя
+  res.json({ message: 'Пользователь обновлен' })
+})
 
-export default usersRouter
+// DELETE /users/:userId - удаление пользователя
+router.delete('/:userId', validateUserDelete, (req, res) => {
+  // Здесь будет логика удаления пользователя
+  res.json({ message: 'Пользователь удален' })
+})
+
+export default router
