@@ -1,0 +1,357 @@
+extends layout.pug
+
+block content
+  .dashboard
+    .hero-section
+      h1.hero-title 🚀 Express Middleware App с MongoDB Atlas
+      p.hero-subtitle Полноценное веб-приложение с интеграцией облачной базы данных
+    
+    .stats-section
+      h2.section-title 📊 Статистика приложения
+      .stats-grid
+        .stat-card
+          .stat-icon 👥
+          .stat-number= stats.totalUsers
+          .stat-label Пользователей
+        .stat-card
+          .stat-icon 📝
+          .stat-number= stats.totalArticles
+          .stat-label Всего статей
+        .stat-card
+          .stat-icon ✅
+          .stat-number= stats.publishedArticles
+          .stat-label Опубликовано
+        .stat-card
+          .stat-icon 📋
+          .stat-number= stats.draftArticles
+          .stat-label Черновиков
+    
+    .content-section
+      .content-grid
+        .content-card
+          h3.content-title 👥 Последние пользователи
+          if users && users.length > 0
+            .user-list
+              each user in users
+                .user-item
+                  .user-avatar= user.name.charAt(0).toUpperCase()
+                  .user-info
+                    .user-name= user.name
+                    .user-email= user.email
+                    .user-role
+                      span.role-badge(class=`role-${user.role}`)= user.role
+            .content-action
+              a.btn.btn-primary(href="/users") Посмотреть всех пользователей
+          else
+            .no-data
+              p Нет пользователей для отображения
+              a.btn.btn-primary(href="/users") Перейти к пользователям
+        
+        .content-card
+          h3.content-title 📝 Последние статьи
+          if articles && articles.length > 0
+            .article-list
+              each article in articles
+                .article-item
+                  .article-title
+                    a(href=`/articles/${article._id}`)= article.title
+                  .article-meta
+                    span.article-author= article.author ? article.author.name : 'Неизвестный автор'
+                    span.article-date= new Date(article.publishedAt).toLocaleDateString('ru-RU')
+                  .article-excerpt= article.excerpt
+            .content-action
+              a.btn.btn-primary(href="/articles") Посмотреть все статьи
+          else
+            .no-data
+              p Нет статей для отображения
+              a.btn.btn-primary(href="/articles") Перейти к статьям
+    
+    .features-section
+      h2.section-title ⚡ Возможности приложения
+      .features-grid
+        .feature-card
+          .feature-icon 🔐
+          .feature-title Аутентификация
+          .feature-desc Passport.js с сессиями и защищенными маршрутами
+        .feature-card
+          .feature-icon 🗄️
+          .feature-title База данных
+          .feature-desc MongoDB Atlas с Mongoose ODM
+        .feature-card
+          .feature-icon 🎨
+          .feature-title Шаблоны
+          .feature-desc PUG и EJS с поддержкой тем
+        .feature-card
+          .feature-icon ✅
+          .feature-title Валидация
+          .feature-desc Joi и Celebrate для проверки данных
+        .feature-card
+          .feature-icon 🔒
+          .feature-title Безопасность
+          .feature-desc Middleware для контроля доступа
+        .feature-card
+          .feature-icon 📱
+          .feature-title Адаптивность
+          .feature-desc Современный адаптивный дизайн
+
+style.
+  .dashboard {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 20px;
+  }
+  
+  .hero-section {
+    text-align: center;
+    margin-bottom: 40px;
+    padding: 40px 20px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border-radius: 20px;
+    color: white;
+  }
+  
+  .hero-title {
+    font-size: 3em;
+    margin: 0 0 20px 0;
+    font-weight: bold;
+  }
+  
+  .hero-subtitle {
+    font-size: 1.2em;
+    margin: 0;
+    opacity: 0.9;
+  }
+  
+  .section-title {
+    text-align: center;
+    margin: 40px 0 30px 0;
+    font-size: 2em;
+    color: #333;
+  }
+  
+  .stats-section {
+    margin-bottom: 40px;
+  }
+  
+  .stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 20px;
+  }
+  
+  .stat-card {
+    background: white;
+    padding: 30px 20px;
+    border-radius: 15px;
+    text-align: center;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    transition: transform 0.2s;
+  }
+  
+  .stat-card:hover {
+    transform: translateY(-5px);
+  }
+  
+  .stat-icon {
+    font-size: 3em;
+    margin-bottom: 15px;
+  }
+  
+  .stat-number {
+    font-size: 2.5em;
+    font-weight: bold;
+    color: #007bff;
+    margin-bottom: 10px;
+  }
+  
+  .stat-label {
+    color: #666;
+    font-size: 1.1em;
+  }
+  
+  .content-section {
+    margin-bottom: 40px;
+  }
+  
+  .content-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+    gap: 30px;
+  }
+  
+  .content-card {
+    background: white;
+    border-radius: 15px;
+    padding: 25px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+  }
+  
+  .content-title {
+    margin: 0 0 20px 0;
+    font-size: 1.5em;
+    color: #333;
+    border-bottom: 2px solid #f0f0f0;
+    padding-bottom: 10px;
+  }
+  
+  .user-list, .article-list {
+    margin-bottom: 20px;
+  }
+  
+  .user-item, .article-item {
+    display: flex;
+    align-items: center;
+    padding: 15px 0;
+    border-bottom: 1px solid #f0f0f0;
+  }
+  
+  .user-item:last-child, .article-item:last-child {
+    border-bottom: none;
+  }
+  
+  .user-avatar {
+    width: 40px;
+    height: 40px;
+    background: #007bff;
+    color: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    margin-right: 15px;
+  }
+  
+  .user-info {
+    flex: 1;
+  }
+  
+  .user-name {
+    font-weight: bold;
+    margin: 0 0 5px 0;
+    color: #333;
+  }
+  
+  .user-email {
+    color: #666;
+    font-size: 0.9em;
+    margin: 0 0 5px 0;
+  }
+  
+  .role-badge {
+    padding: 3px 8px;
+    border-radius: 10px;
+    font-size: 11px;
+    font-weight: bold;
+    text-transform: uppercase;
+  }
+  
+  .role-admin {
+    background: #dc3545;
+    color: white;
+  }
+  
+  .role-user {
+    background: #28a745;
+    color: white;
+  }
+  
+  .article-title {
+    flex: 1;
+    margin-bottom: 5px;
+  }
+  
+  .article-title a {
+    color: #333;
+    text-decoration: none;
+    font-weight: bold;
+  }
+  
+  .article-title a:hover {
+    color: #007bff;
+  }
+  
+  .article-meta {
+    display: flex;
+    gap: 15px;
+    font-size: 0.9em;
+    color: #666;
+    margin-bottom: 5px;
+  }
+  
+  .article-excerpt {
+    color: #555;
+    font-size: 0.9em;
+    line-height: 1.4;
+  }
+  
+  .content-action {
+    text-align: center;
+    padding-top: 20px;
+    border-top: 1px solid #f0f0f0;
+  }
+  
+  .no-data {
+    text-align: center;
+    padding: 40px 20px;
+    color: #666;
+  }
+  
+  .features-section {
+    margin-bottom: 40px;
+  }
+  
+  .features-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 20px;
+  }
+  
+  .feature-card {
+    background: white;
+    padding: 25px;
+    border-radius: 15px;
+    text-align: center;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    transition: transform 0.2s;
+  }
+  
+  .feature-card:hover {
+    transform: translateY(-3px);
+  }
+  
+  .feature-icon {
+    font-size: 3em;
+    margin-bottom: 15px;
+  }
+  
+  .feature-title {
+    font-size: 1.2em;
+    font-weight: bold;
+    color: #333;
+    margin-bottom: 10px;
+  }
+  
+  .feature-desc {
+    color: #666;
+    line-height: 1.5;
+  }
+  
+  .btn {
+    display: inline-block;
+    padding: 12px 24px;
+    border-radius: 8px;
+    text-decoration: none;
+    font-weight: bold;
+    transition: all 0.2s;
+  }
+  
+  .btn-primary {
+    background: #007bff;
+    color: white;
+  }
+  
+  .btn-primary:hover {
+    background: #0056b3;
+    transform: translateY(-1px);
+  } 

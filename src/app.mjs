@@ -9,6 +9,7 @@ import session from 'express-session'
 import passport from './middleware/passport.mjs'
 import { themeMiddleware } from './middleware/theme.mjs'
 import router from './routes/index.mjs'
+import { connectDB } from './config/database.mjs'
 
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
@@ -17,11 +18,14 @@ const __dirname = path.dirname(__filename)
 const PORT = process.env.PORT || 3000
 const app = express()
 
-// Настройка PUG для маршрутов пользователей
-app.set('view engine', 'pug')
-app.set('views', path.join(__dirname, 'views')) // Общая папка views
+// Подключение к MongoDB Atlas
+connectDB()
 
-// Настройка EJS
+// Настройка PUG для маршрутов пользователей и корневого маршрута
+app.set('view engine', 'pug')
+app.set('views', path.join(__dirname, 'views', 'pug')) // Папка для PUG шаблонов
+
+// Настройка EJS для маршрутов статей
 app.engine('ejs', ejs.renderFile)
 
 // Middleware для favicon
@@ -63,9 +67,19 @@ app.use(express.urlencoded({ extended: true }))
 // Middleware для статических файлов
 app.use(express.static(path.join(__dirname, 'public')))
 
-// Корневой маршрут
-app.get('/', (req, res) => {
-  res.send('Добро пожаловать в Express Middleware App!')
+// Middleware для настройки путей к шаблонам в зависимости от маршрута
+app.use('/', (req, res, next) => {
+  // Для корневого маршрута и пользователей используем PUG
+  if (req.path === '/' || req.path.startsWith('/users')) {
+    app.set('views', path.join(__dirname, 'views', 'pug'))
+    app.set('view engine', 'pug')
+  }
+  // Для статей используем EJS
+  else if (req.path.startsWith('/articles')) {
+    app.set('views', path.join(__dirname, 'views', 'ejs'))
+    app.set('view engine', 'ejs')
+  }
+  next()
 })
 
 // Подключение маршрутов

@@ -1,15 +1,197 @@
 extends layout.pug
 
 block content
-  .card
-    h1 User Details
-    .detail
-      span.label ID:
-      span.value #{user.id}
-    .detail
-      span.label Name:
-      span.value #{user.name}
-    .detail
-      span.label Email:
-      span.value #{user.email}
-    a.back-link(href="/users") ← Back to Users List
+  .container
+    .user-profile
+      .user-header
+        .user-avatar
+          span.avatar-text= user.name.charAt(0).toUpperCase()
+        .user-info
+          h1.user-name= user.name
+          p.user-email= user.email
+          p.user-role
+            span.role-badge(class=`role-${user.role}`)= user.role
+      
+      .user-details
+        .detail-card
+          h3 Информация о пользователе
+          .detail-item
+            span.label ID пользователя:
+            span.value= user._id
+          .detail-item
+            span.label Имя:
+            span.value= user.name
+          .detail-item
+            span.label Email:
+            span.value= user.email
+          .detail-item
+            span.label Роль:
+            span.value
+              span.role-badge(class=`role-${user.role}`)= user.role
+          .detail-item
+            span.label Дата регистрации:
+            span.value= new Date(user.createdAt).toLocaleString('ru-RU')
+          .detail-item
+            span.label Последнее обновление:
+            span.value= new Date(user.updatedAt).toLocaleString('ru-RU')
+      
+      .user-actions
+        a.btn.btn-secondary(href="/users") ← Назад к списку пользователей
+        a.btn.btn-primary(href="/articles") Посмотреть статьи
+        a.btn.btn-info(href="/") На главную
+
+style.
+  .container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px;
+  }
+  
+  .user-profile {
+    background: white;
+    border-radius: 15px;
+    padding: 30px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+  }
+  
+  .user-header {
+    display: flex;
+    align-items: center;
+    margin-bottom: 30px;
+    padding-bottom: 20px;
+    border-bottom: 2px solid #f0f0f0;
+  }
+  
+  .user-avatar {
+    margin-right: 20px;
+  }
+  
+  .avatar-text {
+    display: inline-block;
+    width: 80px;
+    height: 80px;
+    background: #007bff;
+    color: white;
+    border-radius: 50%;
+    line-height: 80px;
+    font-size: 32px;
+    font-weight: bold;
+    text-align: center;
+  }
+  
+  .user-name {
+    margin: 0 0 10px 0;
+    font-size: 28px;
+    color: #333;
+  }
+  
+  .user-email {
+    margin: 0 0 10px 0;
+    color: #666;
+    font-size: 16px;
+  }
+  
+  .user-role {
+    margin: 0;
+  }
+  
+  .role-badge {
+    padding: 6px 12px;
+    border-radius: 15px;
+    font-size: 14px;
+    font-weight: bold;
+    text-transform: uppercase;
+  }
+  
+  .role-admin {
+    background: #dc3545;
+    color: white;
+  }
+  
+  .role-user {
+    background: #28a745;
+    color: white;
+  }
+  
+  .user-details {
+    margin-bottom: 30px;
+  }
+  
+  .detail-card {
+    background: #f8f9fa;
+    border-radius: 10px;
+    padding: 20px;
+  }
+  
+  .detail-card h3 {
+    margin: 0 0 20px 0;
+    color: #333;
+    font-size: 20px;
+  }
+  
+  .detail-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 0;
+    border-bottom: 1px solid #e9ecef;
+  }
+  
+  .detail-item:last-child {
+    border-bottom: none;
+  }
+  
+  .label {
+    font-weight: bold;
+    color: #495057;
+    min-width: 150px;
+  }
+  
+  .value {
+    color: #333;
+    word-break: break-all;
+  }
+  
+  .user-actions {
+    text-align: center;
+  }
+  
+  .btn {
+    display: inline-block;
+    padding: 12px 24px;
+    margin: 0 10px;
+    border-radius: 8px;
+    text-decoration: none;
+    font-weight: bold;
+    transition: all 0.2s;
+  }
+  
+  .btn-primary {
+    background: #007bff;
+    color: white;
+  }
+  
+  .btn-primary:hover {
+    background: #0056b3;
+    transform: translateY(-1px);
+  }
+  
+  .btn-secondary {
+    background: #6c757d;
+    color: white;
+  }
+  
+  .btn-secondary:hover {
+    background: #545b62;
+    transform: translateY(-1px);
+  }
+  
+  .btn-info {
+    background: #17a2b8;
+    color: white;
+  }
+  
+  .btn-info:hover {
+    background: #138496;
+    transform: translateY(-1px);
+  }

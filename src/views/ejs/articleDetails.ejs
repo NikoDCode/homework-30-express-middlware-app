@@ -1,28 +1,266 @@
-<%- include('layout.ejs', { title: 'Article Details', theme: theme }) %>
+<%- include('layout.ejs', { title: article.title, theme: theme }) %>
+
 <div class="container">
-  <div class="admin-notice">
-    🔒 Admin Access - Article Details
-  </div>
-  <h1>📖 Article Details</h1>
-  <div class="article-card">
-    <div class="detail-row">
-      <span class="label">ID:</span>
-      <span class="value">
-        <%= article.id %>
-      </span>
+  <div class="article-detail">
+    <div class="article-header">
+      <h1 class="article-title"><%= article.title %></h1>
+      <div class="article-meta">
+        <div class="meta-item">
+          <span class="meta-label">👤 Автор:</span>
+          <span class="meta-value"><%= article.author ? article.author.name : 'Неизвестный автор' %></span>
+        </div>
+        <div class="meta-item">
+          <span class="meta-label">📅 Дата публикации:</span>
+          <span class="meta-value"><%= new Date(article.publishedAt).toLocaleString('ru-RU') %></span>
+        </div>
+        <div class="meta-item">
+          <span class="meta-label">📝 Статус:</span>
+          <span class="status-badge status-<%= article.status %>"><%= article.status %></span>
+        </div>
+      </div>
     </div>
-    <div class="detail-row">
-      <span class="label">Title:</span>
-      <span class="value">
-        <%= article.title %>
-      </span>
-    </div>
-    <div class="content-section">
-      <div class="label">Content:</div>
-      <div class="value" style="margin-top: 10px;">
+    
+    <div class="article-content">
+      <div class="content-text">
         <%= article.content %>
       </div>
     </div>
-    <a href="/articles" class="back-link">← Back to Articles</a>
+    
+    <div class="article-footer">
+      <div class="article-tags">
+        <h4>🏷️ Теги:</h4>
+        <% if (article.tags && article.tags.length > 0) { %>
+          <div class="tags-list">
+            <% article.tags.forEach(tag => { %>
+              <span class="tag">
+                <a href="/articles/tags/<%= tag %>">#<%= tag %></a>
+              </span>
+            <% }) %>
+          </div>
+        <% } else { %>
+          <p class="no-tags">Теги не указаны</p>
+        <% } %>
+      </div>
+      
+      <div class="article-info">
+        <div class="info-item">
+          <span class="info-label">🆔 ID статьи:</span>
+          <span class="info-value"><%= article._id %></span>
+        </div>
+        <div class="info-item">
+          <span class="info-label">📅 Последнее обновление:</span>
+          <span class="info-value"><%= new Date(article.updatedAt).toLocaleString('ru-RU') %></span>
+        </div>
+      </div>
+    </div>
+    
+    <div class="article-actions">
+      <a href="/articles" class="btn btn-secondary">← Назад к списку статей</a>
+      <a href="/users" class="btn btn-primary">👥 Посмотреть пользователей</a>
+      <a href="/" class="btn btn-info">🏠 На главную</a>
+    </div>
   </div>
 </div>
+
+<style>
+  .container {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 20px;
+  }
+  
+  .article-detail {
+    background: white;
+    border-radius: 15px;
+    padding: 30px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+  }
+  
+  .article-header {
+    margin-bottom: 30px;
+    padding-bottom: 20px;
+    border-bottom: 2px solid #f0f0f0;
+  }
+  
+  .article-title {
+    margin: 0 0 20px 0;
+    font-size: 2.5em;
+    color: #333;
+    line-height: 1.2;
+  }
+  
+  .article-meta {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 15px;
+  }
+  
+  .meta-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  
+  .meta-label {
+    font-weight: bold;
+    color: #495057;
+    min-width: 80px;
+  }
+  
+  .meta-value {
+    color: #333;
+  }
+  
+  .status-badge {
+    padding: 6px 12px;
+    border-radius: 15px;
+    font-size: 12px;
+    font-weight: bold;
+    text-transform: uppercase;
+  }
+  
+  .status-published {
+    background: #d4edda;
+    color: #155724;
+  }
+  
+  .status-draft {
+    background: #fff3cd;
+    color: #856404;
+  }
+  
+  .status-archived {
+    background: #f8d7da;
+    color: #721c24;
+  }
+  
+  .article-content {
+    margin-bottom: 30px;
+  }
+  
+  .content-text {
+    font-size: 16px;
+    line-height: 1.8;
+    color: #333;
+    text-align: justify;
+  }
+  
+  .article-footer {
+    margin-bottom: 30px;
+    padding-top: 20px;
+    border-top: 2px solid #f0f0f0;
+  }
+  
+  .article-tags {
+    margin-bottom: 20px;
+  }
+  
+  .article-tags h4 {
+    margin: 0 0 15px 0;
+    color: #333;
+    font-size: 18px;
+  }
+  
+  .tags-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  
+  .tag {
+    background: #e9ecef;
+    padding: 6px 12px;
+    border-radius: 15px;
+    font-size: 14px;
+  }
+  
+  .tag a {
+    color: #495057;
+    text-decoration: none;
+    font-weight: 500;
+  }
+  
+  .tag a:hover {
+    color: #007bff;
+  }
+  
+  .no-tags {
+    color: #999;
+    font-style: italic;
+    margin: 0;
+  }
+  
+  .article-info {
+    background: #f8f9fa;
+    border-radius: 10px;
+    padding: 20px;
+  }
+  
+  .info-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 0;
+    border-bottom: 1px solid #e9ecef;
+  }
+  
+  .info-item:last-child {
+    border-bottom: none;
+  }
+  
+  .info-label {
+    font-weight: bold;
+    color: #495057;
+  }
+  
+  .info-value {
+    color: #333;
+    font-family: monospace;
+    font-size: 14px;
+    word-break: break-all;
+  }
+  
+  .article-actions {
+    text-align: center;
+  }
+  
+  .btn {
+    display: inline-block;
+    padding: 12px 24px;
+    margin: 0 10px;
+    border-radius: 8px;
+    text-decoration: none;
+    font-weight: bold;
+    transition: all 0.2s;
+  }
+  
+  .btn-primary {
+    background: #007bff;
+    color: white;
+  }
+  
+  .btn-primary:hover {
+    background: #0056b3;
+    transform: translateY(-1px);
+  }
+  
+  .btn-secondary {
+    background: #6c757d;
+    color: white;
+  }
+  
+  .btn-secondary:hover {
+    background: #545b62;
+    transform: translateY(-1px);
+  }
+  
+  .btn-info {
+    background: #17a2b8;
+    color: white;
+  }
+  
+  .btn-info:hover {
+    background: #138496;
+    transform: translateY(-1px);
+  }
+</style>
