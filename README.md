@@ -102,6 +102,141 @@
 
 ---
 
+## CRUD маршруты для статей (MongoDB Atlas)
+
+### Добавление одной статьи
+- **POST /articles**
+- Тело запроса:
+```json
+{
+  "title": "Заголовок",
+  "content": "Текст статьи",
+  "tags": ["tag1", "tag2"]
+}
+```
+- Пример ответа:
+```json
+{
+  "message": "Статья создана",
+  "article": { /* ... */ }
+}
+```
+
+### Массовое добавление статей
+- **POST /articles/bulk**
+- Тело запроса:
+```json
+{
+  "articles": [
+    { "title": "Статья 1", "content": "Текст 1" },
+    { "title": "Статья 2", "content": "Текст 2" }
+  ]
+}
+```
+- Пример ответа:
+```json
+{
+  "message": "Статьи успешно добавлены",
+  "articles": [ /* ... */ ]
+}
+```
+
+### Обновление одной статьи
+- **PUT /articles/:id**
+- Тело запроса:
+```json
+{
+  "title": "Новый заголовок"
+}
+```
+- Пример ответа:
+```json
+{
+  "message": "Статья обновлена",
+  "article": { /* ... */ }
+}
+```
+
+### Массовое обновление статей
+- **PATCH /articles**
+- Тело запроса:
+```json
+{
+  "filter": { "status": "draft" },
+  "update": { "$set": { "status": "published" } }
+}
+```
+- Пример ответа:
+```json
+{
+  "message": "Статьи успешно обновлены",
+  "result": { "n": 2, "nModified": 2, "ok": 1 }
+}
+```
+
+### Замена одной статьи
+- **PUT /articles/replace/:id**
+- Тело запроса:
+```json
+{
+  "title": "Полная замена",
+  "content": "Новый текст",
+  "tags": []
+}
+```
+- Пример ответа:
+```json
+{
+  "message": "Статья успешно заменена",
+  "article": { /* ... */ }
+}
+```
+
+### Удаление одной статьи
+- **DELETE /articles/:id**
+- Пример ответа:
+```json
+{
+  "message": "Статья успешно удалена"
+}
+```
+
+### Массовое удаление статей
+- **DELETE /articles**
+- Тело запроса:
+```json
+{
+  "filter": { "status": "archived" }
+}
+```
+- Пример ответа:
+```json
+{
+  "message": "Статьи успешно удалены",
+  "result": { "n": 3, "ok": 1, "deletedCount": 3 }
+}
+```
+
+### Расширенный поиск с проекцией
+- **POST /articles/find**
+- Тело запроса:
+```json
+{
+  "filter": { "status": "published" },
+  "projection": { "title": 1, "content": 0 }
+}
+```
+- Пример ответа:
+```json
+{
+  "articles": [
+    { "_id": "...", "title": "..." }
+  ]
+}
+```
+
+---
+
 ## Структура проекта
 
 ```
@@ -187,6 +322,94 @@ curl -X POST http://localhost:3000/articles \
 ## Автор
 
 Студент курса Fullstack JS
+
+---
+
+## Логирование запросов
+
+В приложении реализовано middleware для логирования всех HTTP-запросов. Каждый запрос выводится в консоль в формате:
+
+```
+YYYY-MM-DDTHH:mm:ss.sssZ - METHOD request to /route
+```
+
+Пример:
+```
+2024-05-01T12:34:56.789Z - GET request to /articles
+```
+
+Middleware находится в `src/app.mjs`:
+```js
+app.use((req, res, next) => {
+  console.log(`${new Date().toISOString()} - ${req.method} request to ${req.url}`)
+  next()
+})
+```
+
+---
+
+## Создание статей и заголовок x-user-id
+
+Для создания статьи требуется указать идентификатор пользователя-автора через HTTP-заголовок `x-user-id`:
+
+```
+POST /articles
+x-user-id: <userId>
+Content-Type: application/json
+
+{
+  "title": "Заголовок статьи",
+  "content": "Текст статьи"
+}
+```
+
+Если заголовок не указан, используется временный ID для демонстрации.
+
+---
+
+## Виртуальное поле excerpt и метод toPublicJSON в Article
+
+В модели Article реализовано виртуальное поле `excerpt`, возвращающее первые 150 символов контента (или весь текст, если он короче):
+
+```js
+articleSchema.virtual('excerpt').get(function() {
+  return this.content.length > 150 
+    ? this.content.substring(0, 150) + '...' 
+    : this.content
+})
+```
+
+Также реализован метод `toPublicJSON`, который возвращает публичные данные статьи, включая excerpt:
+
+```js
+articleSchema.methods.toPublicJSON = function() {
+  const article = this.toObject()
+  return {
+    id: article._id,
+    title: article.title,
+    content: article.content,
+    excerpt: article.excerpt,
+    tags: article.tags,
+    status: article.status,
+    publishedAt: article.publishedAt,
+    updatedAt: article.updatedAt
+  }
+}
+```
+
+Пример результата:
+```json
+{
+  "id": "...",
+  "title": "Заголовок",
+  "content": "Полный текст...",
+  "excerpt": "Первые 150 символов...",
+  "tags": ["tag1", "tag2"],
+  "status": "published",
+  "publishedAt": "2024-05-01T12:00:00.000Z",
+  "updatedAt": "2024-05-01T12:00:00.000Z"
+}
+```
 
 ---
 

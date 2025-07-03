@@ -1,9 +1,7 @@
 import passport from 'passport'
 import { Strategy as LocalStrategy } from 'passport-local'
 import bcrypt from 'bcryptjs'
-
-// В реальном приложении здесь будет работа с базой данных
-export const users = []
+import { UserService } from '../services/userService.mjs'
 
 passport.use(new LocalStrategy(
   {
@@ -12,18 +10,14 @@ passport.use(new LocalStrategy(
   },
   async (email, password, done) => {
     try {
-      const user = users.find(u => u.email === email)
-      
+      const user = await UserService.getUserByEmail(email)
       if (!user) {
         return done(null, false, { message: 'Пользователь не найден' })
       }
-
       const isValidPassword = await bcrypt.compare(password, user.password)
-      
       if (!isValidPassword) {
         return done(null, false, { message: 'Неверный пароль' })
       }
-
       return done(null, user)
     } catch (error) {
       return done(error)
@@ -35,9 +29,13 @@ passport.serializeUser((user, done) => {
   done(null, user.id)
 })
 
-passport.deserializeUser((id, done) => {
-  const user = users.find(u => u.id === id)
-  done(null, user)
+passport.deserializeUser(async (id, done) => {
+  try {
+    const user = await UserService.getUserById(id)
+    done(null, user)
+  } catch (error) {
+    done(error)
+  }
 })
 
 export default passport 

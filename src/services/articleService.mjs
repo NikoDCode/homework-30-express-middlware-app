@@ -168,4 +168,60 @@ export class ArticleService {
       throw new Error(`Ошибка при получении статистики: ${error.message}`)
     }
   }
+
+  // Массовое добавление статей
+  static async insertMany(articlesData, authorId) {
+    try {
+      const articles = articlesData.map(data => ({
+        ...data,
+        author: authorId,
+        status: data.status || 'published'
+      }))
+      const result = await Article.insertMany(articles)
+      return result
+    } catch (error) {
+      throw new Error(`Ошибка при массовом добавлении статей: ${error.message}`)
+    }
+  }
+
+  // Массовое обновление статей
+  static async updateMany(filter, update) {
+    try {
+      const result = await Article.updateMany(filter, update)
+      return result
+    } catch (error) {
+      throw new Error(`Ошибка при массовом обновлении статей: ${error.message}`)
+    }
+  }
+
+  // Замена одной статьи
+  static async replaceOne(id, newData) {
+    try {
+      const replaced = await Article.findOneAndReplace({ _id: id }, newData, { new: true })
+      if (!replaced) throw new Error('Статья не найдена для замены')
+      return replaced
+    } catch (error) {
+      throw new Error(`Ошибка при замене статьи: ${error.message}`)
+    }
+  }
+
+  // Массовое удаление статей
+  static async deleteMany(filter) {
+    try {
+      const result = await Article.deleteMany(filter)
+      return result
+    } catch (error) {
+      throw new Error(`Ошибка при массовом удалении статей: ${error.message}`)
+    }
+  }
+
+  // Поиск с проекцией
+  static async findWithProjection(filter, projection) {
+    try {
+      const articles = await Article.find(filter, projection)
+      return articles
+    } catch (error) {
+      throw new Error(`Ошибка при поиске статей с проекцией: ${error.message}`)
+    }
+  }
 } 

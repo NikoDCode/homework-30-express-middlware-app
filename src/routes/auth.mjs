@@ -1,35 +1,27 @@
 import express from 'express'
-import passport from 'passport'
+import passport from '../middleware/passport.mjs'
 import bcrypt from 'bcryptjs'
 import { validateRegistration, validateLogin } from '../validators/authValidation.mjs'
-import { users } from '../middleware/passport.mjs'
+import { UserService } from '../services/userService.mjs'
 
 const router = express.Router()
 
 // Регистрация
 router.post('/register', validateRegistration, async (req, res, next) => {
   try {
-    const { email, password } = req.body
-    
-    // В реальном приложении здесь будет проверка существования пользователя в БД
-    const existingUser = users.find(u => u.email === email)
+    const { email, password, name } = req.body
+    // Проверка существования пользователя
+    const existingUser = await UserService.getUserByEmail(email)
     if (existingUser) {
       return res.status(400).json({ error: 'Пользователь уже существует' })
     }
-
     // Хешируем пароль
     const hashedPassword = await bcrypt.hash(password, 10)
-    
-    // Создаем нового пользователя
-    const newUser = {
-      id: users.length + 1,
-      email,
-      password: hashedPassword
-    }
-    users.push(newUser)
-
-    // Автоматически входим после регистрации
-    req.login(newUser, (err) => {
+    // Создаем пользователя через UserService
+    const newUser = await UserService.createUser({ email, password: hashedPassword, name })
+    // Получаем пользователя из базы для логина
+    const dbUser = await UserService.getUserByEmail(email)
+    req.login(dbUser, (err) => {
       if (err) {
         return next(err)
       }
