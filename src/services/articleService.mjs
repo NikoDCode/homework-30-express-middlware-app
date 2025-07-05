@@ -224,4 +224,290 @@ export class ArticleService {
       throw new Error(`Ошибка при поиске статей с проекцией: ${error.message}`)
     }
   }
+
+  // Получить курсор для всех статей (для обработки больших объемов данных)
+  static getArticlesCursor(filter = { status: 'published' }, options = {}) {
+    try {
+      return Article.find(filter)
+        .populate('author', 'name email')
+        .sort({ publishedAt: -1 })
+        .cursor(options)
+    } catch (error) {
+      throw new Error(`Ошибка при создании курсора: ${error.message}`)
+    }
+  }
+
+  // Обработать статьи через курсор с пакетной обработкой
+  static async processArticlesWithCursor(batchSize = 10, processor) {
+    try {
+      const cursor = this.getArticlesCursor()
+      const results = []
+      let batch = []
+      let processedCount = 0
+
+      for (let article = await cursor.next(); article != null; article = await cursor.next()) {
+        batch.push(article)
+        processedCount++
+
+        if (batch.length >= batchSize) {
+          const batchResult = await processor(batch, processedCount)
+          results.push(batchResult)
+          batch = []
+        }
+      }
+
+      // Обработать оставшиеся статьи
+      if (batch.length > 0) {
+        const batchResult = await processor(batch, processedCount)
+        results.push(batchResult)
+      }
+
+      await cursor.close()
+      return { results, totalProcessed: processedCount }
+    } catch (error) {
+      throw new Error(`Ошибка при обработке статей через курсор: ${error.message}`)
+    }
+  }
+
+  // Получить курсор для статей с фильтрацией по тегам
+  static getArticlesByTagsCursor(tags, options = {}) {
+    try {
+      return Article.find({
+        tags: { $in: tags },
+        status: 'published'
+      })
+        .populate('author', 'name email')
+        .sort({ publishedAt: -1 })
+        .cursor(options)
+    } catch (error) {
+      throw new Error(`Ошибка при создании курсора для тегов: ${error.message}`)
+    }
+  }
+
+  // Расширенная статистика статей с детальной аналитикой
+  static async getAdvancedArticlesStats() {
+    try {
+      const pipeline = [
+        {
+          $lookup: {
+            from: 'users',
+            localField: 'author',
+            foreignField: '_id',
+            as: 'authorInfo'
+          }
+        },
+        {
+          $unwind: '$authorInfo'
+        },
+        {
+          $group: {
+            _id: {
+              status: '$status',
+              authorRole: '$authorInfo.role'
+            },
+            count: { $sum: 1 },
+            avgContentLength: { $avg: { $strLenCP: '$content' } },
+            totalContentLength: { $sum: { $strLenCP: '$content' } },
+            uniqueTags: { $addToSet: '$tags' }
+          }
+        },
+        {
+          $group: {
+            _id: '$_id.status',
+            authorStats: {
+              $push: {
+                role: '$_id.authorRole',
+                count: '$count',
+                avgContentLength: '$avgContentLength',
+                totalContentLength: '$totalContentLength'
+              }
+            },
+            totalCount: { $sum: '$count' },
+            allTags: { $addToSet: '$uniqueTags' }
+          }
+        },
+        {
+          $project: {
+            status: '$_id',
+            authorStats: 1,
+            totalCount: 1,
+            uniqueTagsCount: { $size: { $reduce: { input: '$allTags', initialValue: [], in: { $setUnion: ['$$value', '$$this'] } } } }
+          }
+        }
+      ]
+
+      const stats = await Article.aggregate(pipeline)
+      
+      // Дополнительная статистика по тегам
+      const tagStats = await Article.aggregate([
+        { $unwind: '$tags' },
+        {
+          $group: {
+            _id: '$tags',
+            count: { $sum: 1 }
+          }
+        },
+        { $sort: { count: -1 } },
+        { $limit: 10 }
+      ])
+
+      // Статистика по месяцам
+      const monthlyStats = await Article.aggregate([
+        {
+          $group: {
+            _id: {
+              year: { $year: '$publishedAt' },
+              month: { $month: '$publishedAt' }
+            },
+            count: { $sum: 1 }
+          }
+        },
+        { $sort: { '_id.year': -1, '_id.month': -1 } },
+        { $limit: 12 }
+      ])
+
+      return {
+        byStatus: stats,
+        topTags: tagStats,
+        monthlyTrend: monthlyStats,
+        summary: {
+          totalArticles: stats.reduce((sum, stat) => sum + stat.totalCount, 0),
+          totalTags: tagStats.length,
+          averageContentLength: stats.reduce((sum, stat) => {
+            const avgLength = stat.authorStats.reduce((acc, author) => acc + author.avgContentLength, 0) / stat.authorStats.length
+            return sum + avgLength
+          }, 0) / stats.length
+        }
+      }
+    } catch (error) {
+      throw new Error(`Ошибка при получении расширенной статистики: ${error.message}`)
+    }
+  }
+
+  // Агрегационный запрос для анализа активности авторов
+  static async getAuthorActivityStats() {
+    try {
+      const pipeline = [
+        {
+          $lookup: {
+            from: 'users',
+            localField: 'author',
+            foreignField: '_id',
+            as: 'authorInfo'
+          }
+        },
+        {
+          $unwind: '$authorInfo'
+        },
+        {
+          $group: {
+            _id: '$author',
+            authorName: { $first: '$authorInfo.name' },
+            authorEmail: { $first: '$authorInfo.email' },
+            authorRole: { $first: '$authorInfo.role' },
+            totalArticles: { $sum: 1 },
+            publishedArticles: {
+              $sum: { $cond: [{ $eq: ['$status', 'published'] }, 1, 0] }
+            },
+            draftArticles: {
+              $sum: { $cond: [{ $eq: ['$status', 'draft'] }, 1, 0] }
+            },
+            archivedArticles: {
+              $sum: { $cond: [{ $eq: ['$status', 'archived'] }, 1, 0] }
+            },
+            totalContentLength: { $sum: { $strLenCP: '$content' } },
+            avgContentLength: { $avg: { $strLenCP: '$content' } },
+            uniqueTags: { $addToSet: '$tags' },
+            firstArticle: { $min: '$publishedAt' },
+            lastArticle: { $max: '$publishedAt' }
+          }
+        },
+        {
+          $project: {
+            authorName: 1,
+            authorEmail: 1,
+            authorRole: 1,
+            totalArticles: 1,
+            publishedArticles: 1,
+            draftArticles: 1,
+            archivedArticles: 1,
+            totalContentLength: 1,
+            avgContentLength: 1,
+            uniqueTagsCount: { $size: { $reduce: { input: '$uniqueTags', initialValue: [], in: { $setUnion: ['$$value', '$$this'] } } } },
+            firstArticle: 1,
+            lastArticle: 1,
+            activityPeriod: {
+              $divide: [
+                { $subtract: ['$lastArticle', '$firstArticle'] },
+                1000 * 60 * 60 * 24 // дни
+              ]
+            }
+          }
+        },
+        { $sort: { totalArticles: -1 } }
+      ]
+
+      return await Article.aggregate(pipeline)
+    } catch (error) {
+      throw new Error(`Ошибка при получении статистики активности авторов: ${error.message}`)
+    }
+  }
+
+  // Агрегационный запрос для анализа популярности тегов
+  static async getTagPopularityStats() {
+    try {
+      const pipeline = [
+        { $unwind: '$tags' },
+        {
+          $group: {
+            _id: '$tags',
+            count: { $sum: 1 },
+            articles: { $addToSet: '$_id' },
+            avgContentLength: { $avg: { $strLenCP: '$content' } },
+            statusDistribution: {
+              $push: '$status'
+            }
+          }
+        },
+        {
+          $project: {
+            tag: '$_id',
+            count: 1,
+            articlesCount: { $size: '$articles' },
+            avgContentLength: 1,
+            statusDistribution: 1,
+            publishedCount: {
+              $size: {
+                $filter: {
+                  input: '$statusDistribution',
+                  cond: { $eq: ['$$this', 'published'] }
+                }
+              }
+            },
+            draftCount: {
+              $size: {
+                $filter: {
+                  input: '$statusDistribution',
+                  cond: { $eq: ['$$this', 'draft'] }
+                }
+              }
+            },
+            archivedCount: {
+              $size: {
+                $filter: {
+                  input: '$statusDistribution',
+                  cond: { $eq: ['$$this', 'archived'] }
+                }
+              }
+            }
+          }
+        },
+        { $sort: { count: -1 } }
+      ]
+
+      return await Article.aggregate(pipeline)
+    } catch (error) {
+      throw new Error(`Ошибка при получении статистики популярности тегов: ${error.message}`)
+    }
+  }
 } 
